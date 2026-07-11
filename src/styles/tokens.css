@@ -155,6 +155,11 @@ button {
   transition: color 0.2s, background 0.2s;
   cursor: pointer;
 }
+.lg-nav-label {
+  display: inline-block;
+  transform-origin: center;
+  will-change: transform;
+}
 .lg-nav a:hover,
 .lg-nav a:focus-visible,
 .lg-nav a:active {

@@ -8,11 +8,16 @@ const STRETCH_EASE = "left 0.14s ease-out, width 0.14s ease-out";
 const SETTLE_EASE =
   "left 0.45s cubic-bezier(0.32, 1.8, 0.6, 1), width 0.45s cubic-bezier(0.32, 1.8, 0.6, 1)";
 
+// cuánto puede crecer el texto cuando está 100% tapado por el vidrio
+const MAX_GROW = 0.16;
+
 export default function Nav({ onNavigate }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const [transition, setTransition] = useState("none");
   const linkRefs = useRef([]);
+  const labelRefs = useRef([]);
+  const indicatorRef = useRef(null);
 
   const rectOf = (index) => {
     const el = linkRefs.current[index];
@@ -29,6 +34,41 @@ export default function Nav({ onNavigate }) {
     return () => window.removeEventListener("resize", onResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // "lupa": mide en cada frame cuánto tapa el vidrio a cada texto y lo agranda en proporción
+  useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduceMotion) {
+      labelRefs.current.forEach((el, i) => {
+        if (el) el.style.transform = i === activeIndex ? `scale(${1 + MAX_GROW})` : "scale(1)";
+      });
+      return;
+    }
+
+    let raf;
+    const tick = () => {
+      const indEl = indicatorRef.current;
+      if (indEl) {
+        const indRect = indEl.getBoundingClientRect();
+        linkRefs.current.forEach((linkEl, i) => {
+          const labelEl = labelRefs.current[i];
+          if (!linkEl || !labelEl) return;
+          const rect = linkEl.getBoundingClientRect();
+          const overlap = Math.max(
+            0,
+            Math.min(indRect.right, rect.right) - Math.max(indRect.left, rect.left)
+          );
+          const ratio = rect.width > 0 ? overlap / rect.width : 0;
+          labelEl.style.transform = `scale(${1 + ratio * MAX_GROW})`;
+        });
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+
+    return () => cancelAnimationFrame(raf);
+  }, [activeIndex]);
 
   const goTo = (index) => {
     const target = rectOf(index);
@@ -60,6 +100,7 @@ export default function Nav({ onNavigate }) {
       <div className="lg-liquid-tint" />
       <div className="lg-liquid-content lg-nav-links">
         <span
+          ref={indicatorRef}
           className="lg-nav-indicator"
           style={{ left: indicator.left, width: indicator.width, transition }}
         />
@@ -70,7 +111,9 @@ export default function Nav({ onNavigate }) {
             ref={(el) => (linkRefs.current[i] = el)}
             onClick={(e) => handleClick(e, link, i)}
           >
-            {link.label}
+            <span ref={(el) => (labelRefs.current[i] = el)} className="lg-nav-label">
+              {link.label}
+            </span>
           </a>
         ))}
       </div>
