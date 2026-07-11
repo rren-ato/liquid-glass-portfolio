@@ -21,6 +21,8 @@ export default function ParticleName({ text }) {
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let isOnScreen = true;
+    let isTabVisible = !document.hidden;
 
     async function build() {
       const cssW = container.clientWidth;
@@ -97,6 +99,10 @@ export default function ParticleName({ text }) {
     }
 
     function loop() {
+      if (!isOnScreen || !isTabVisible) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
       const cssW = container.clientWidth;
       const cssH = canvas.height / dpr;
       ctx.clearRect(0, 0, cssW, cssH);
@@ -150,12 +156,24 @@ export default function ParticleName({ text }) {
     };
     window.addEventListener("resize", onResize);
 
+    const io = new IntersectionObserver(([entry]) => (isOnScreen = entry.isIntersecting), {
+      rootMargin: "150px",
+    });
+    io.observe(container);
+
+    const onVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(resizeTimer);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseleave", onLeave);
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      io.disconnect();
     };
   }, [text]);
 

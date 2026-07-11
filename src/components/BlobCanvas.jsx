@@ -33,8 +33,17 @@ export default function BlobCanvas() {
     window.addEventListener("mousemove", onMove);
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let isTabVisible = !document.hidden;
+    const onVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const draw = () => {
+      if (!isTabVisible) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
       ctx.clearRect(0, 0, w, h);
       blobs.forEach((b, i) => {
         b.t += reduceMotion ? 0 : 0.006;
@@ -60,6 +69,7 @@ export default function BlobCanvas() {
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       cancelAnimationFrame(raf);
     };
   }, []);

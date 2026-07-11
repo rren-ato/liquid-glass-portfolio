@@ -11,6 +11,12 @@ import { useEffect, useRef } from "react";
  * Chromium/Brave). `filter` normal con SVG sí es sólido en todos lados,
  * así que en vez de distorsionar el fondo real de la página, esta capa
  * genera su propio "fondo" de color y a ESE lo distorsionamos.
+ *
+ * Optimización: cuando hay muchas instancias en la misma página (ej. la
+ * grilla de formas del proyecto), no tiene sentido que las que están
+ * fuera de pantalla sigan dibujando en cada frame. Un IntersectionObserver
+ * corta el trabajo de pintado mientras no son visibles, y lo mismo pasa
+ * si la pestaña del navegador no está activa (document.hidden).
  */
 export default function LiquidBlobLayer({ className = "" }) {
   const canvasRef = useRef(null);
@@ -22,6 +28,8 @@ export default function LiquidBlobLayer({ className = "" }) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf;
     let t = Math.random() * 100;
+    let isOnScreen = true;
+    let isTabVisible = !document.hidden;
 
     const resize = () => {
       const rect = parent.getBoundingClientRect();
@@ -51,23 +59,36 @@ export default function LiquidBlobLayer({ className = "" }) {
       });
     };
 
+    // primer frame siempre visible, aunque el observer todavía no confirmó nada
+    paint();
+
     let active = true;
-    if (reduceMotion) {
-      paint();
-    } else {
-      const loop = () => {
-        if (!active) return;
+    const loop = () => {
+      if (!active) return;
+      if (!reduceMotion && isOnScreen && isTabVisible) {
         t += 0.012;
         paint();
-        raf = requestAnimationFrame(loop);
-      };
-      loop();
-    }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+
+    const io = new IntersectionObserver(([entry]) => (isOnScreen = entry.isIntersecting), {
+      rootMargin: "150px",
+    });
+    io.observe(parent);
+
+    const onVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       active = false;
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      io.disconnect();
     };
   }, []);
 
