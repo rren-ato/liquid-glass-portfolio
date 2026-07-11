@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ALIAS } from "../data/site";
-
+import LiquidBlobLayer from "./LiquidBlobLayer";
 
 export default function Preloader() {
   const [visible, setVisible] = useState(true);
@@ -78,7 +78,7 @@ export default function Preloader() {
   return (
     <div className={`lg-preloader ${fading ? "lg-preloader-out" : ""}`}>
       <div
-        className={`lg-glass lg-glass-liquid lg-preloader-tag ${dragging ? "lg-dragging" : ""} ${
+        className={`lg-liquid-surface lg-preloader-tag ${dragging ? "lg-dragging" : ""} ${
           snapping ? "lg-snapping" : ""
         }`}
         style={{
@@ -89,7 +89,9 @@ export default function Preloader() {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
-        <span className="lg-preloader-alias">{ALIAS}</span>
+        <LiquidBlobLayer />
+        <div className="lg-liquid-tint" />
+        <span className="lg-liquid-content lg-preloader-alias">{ALIAS}</span>
       </div>
       <span className="lg-preloader-hint">arrastrame ↗</span>
     </div>

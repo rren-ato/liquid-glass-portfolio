@@ -61,15 +61,41 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* Distorsión real de vidrio (feDisplacementMap vía SVG), solo
-   donde el navegador la soporta. Va DESPUÉS de .lg-glass a propósito:
-   si el navegador no entiende url(#...) dentro de backdrop-filter
-   (Safari), descarta esta declaración entera y el elemento se queda
-   con el blur simple de .lg-glass de arriba. No hace falta detectar
-   el navegador — el CSS se degrada solo. */
-.lg-glass-liquid {
-  backdrop-filter: blur(14px) saturate(180%) url("#lg-glass-distortion");
-  -webkit-backdrop-filter: blur(14px) saturate(180%) url("#lg-glass-distortion");
+/* --- vidrio con distorsión real ---
+   No usamos backdrop-filter + SVG (poco confiable entre navegadores,
+   incluso dentro de Chromium/Brave). En cambio: un canvas propio con
+   blobs de color vive DENTRO del panel, y a ESE canvas se le aplica
+   `filter: url()` (no backdrop-filter) — eso sí es sólido en todos lados.
+   El panel sigue teniendo su backdrop-filter: blur() normal encima,
+   así que además se ve el fondo real de la página difuminado detrás. */
+.lg-liquid-surface {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.lg-liquid-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(9px) url("#lg-glass-distortion");
+  opacity: 0.6;
+  pointer-events: none;
+}
+.lg-liquid-tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  pointer-events: none;
+}
+.lg-liquid-content {
+  position: relative;
+  z-index: 2;
 }
 
 .lg-nav {
@@ -78,10 +104,12 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
+  border-radius: 999px;
+}
+.lg-nav-links {
   display: flex;
   gap: 4px;
   padding: 8px;
-  border-radius: 999px;
 }
 .lg-nav a {
   font-family: var(--mono);

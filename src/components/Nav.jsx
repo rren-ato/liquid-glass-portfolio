@@ -1,13 +1,18 @@
 import { NAV_LINKS } from "../data/nav";
+import LiquidBlobLayer from "./LiquidBlobLayer";
 
 export default function Nav({ onNavigate }) {
   return (
-    <nav className="lg-glass lg-glass-liquid lg-nav">
-      {NAV_LINKS.map((link) => (
-        <a key={link.href} onClick={() => onNavigate(link.href)}>
-          {link.label}
-        </a>
-      ))}
+    <nav className="lg-nav lg-liquid-surface">
+      <LiquidBlobLayer />
+      <div className="lg-liquid-tint" />
+      <div className="lg-liquid-content lg-nav-links">
+        {NAV_LINKS.map((link) => (
+          <a key={link.href} onClick={() => onNavigate(link.href)}>
+            {link.label}
+          </a>
+        ))}
+      </div>
     </nav>
   );
 }
