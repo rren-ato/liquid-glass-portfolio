@@ -1,6 +1,7 @@
 import "./styles/tokens.css";
 
 import BlobCanvas from "./components/BlobCanvas";
+import Preloader from "./components/Preloader";
 import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -16,6 +17,7 @@ export default function App() {
 
   return (
     <div className="lg-root">
+      <Preloader />
       <BlobCanvas />
       <div className="lg-grain" />
 
