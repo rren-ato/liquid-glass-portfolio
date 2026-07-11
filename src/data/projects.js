@@ -2,20 +2,20 @@ export const PROJECTS = [
   {
     title: "Proyecto uno",
     description:
-      "Descripción breve y honesta: qué hace, qué aprendiste al hacerlo, qué le falta todavía.",
+      "Aun cocinando",
     tags: ["react", "css"],
     gradient: "linear-gradient(135deg, var(--blob-a), var(--blob-b))",
   },
   {
     title: "Proyecto dos",
     description:
-      "Otro proyecto real o de práctica — no hace falta que sea perfecto, solo que sea tuyo.",
+      "Si el otro aun no esta terminado, este ni planteado, no?",
     tags: ["javascript", "api"],
     gradient: "linear-gradient(135deg, var(--blob-b), var(--blob-c))",
   },
   {
     title: "Proyecto tres",
-    description: "Espacio para el próximo experimento. Reemplazá este texto cuando lo tengas.",
+    description: "Ni idea aun",
     tags: ["experimento"],
     gradient: "linear-gradient(135deg, var(--blob-c), var(--blob-a))",
   },
