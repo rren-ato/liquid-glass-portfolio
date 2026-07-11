@@ -78,7 +78,7 @@ export default function Preloader() {
   return (
     <div className={`lg-preloader ${fading ? "lg-preloader-out" : ""}`}>
       <div
-        className={`lg-preloader-tag ${dragging ? "lg-dragging" : ""} ${
+        className={`lg-glass lg-glass-liquid lg-preloader-tag ${dragging ? "lg-dragging" : ""} ${
           snapping ? "lg-snapping" : ""
         }`}
         style={{

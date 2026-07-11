@@ -1,5 +1,6 @@
 import "./styles/tokens.css";
 
+import GlassFilterDefs from "./components/GlassFilterDefs";
 import BlobCanvas from "./components/BlobCanvas";
 import Preloader from "./components/Preloader";
 import Nav from "./components/Nav";
@@ -17,6 +18,7 @@ export default function App() {
 
   return (
     <div className="lg-root">
+      <GlassFilterDefs />
       <Preloader />
       <BlobCanvas />
       <div className="lg-grain" />

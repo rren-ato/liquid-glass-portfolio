@@ -61,6 +61,17 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
+/* Distorsión real de vidrio (feDisplacementMap vía SVG), solo
+   donde el navegador la soporta. Va DESPUÉS de .lg-glass a propósito:
+   si el navegador no entiende url(#...) dentro de backdrop-filter
+   (Safari), descarta esta declaración entera y el elemento se queda
+   con el blur simple de .lg-glass de arriba. No hace falta detectar
+   el navegador — el CSS se degrada solo. */
+.lg-glass-liquid {
+  backdrop-filter: blur(14px) saturate(180%) url("#lg-glass-distortion");
+  -webkit-backdrop-filter: blur(14px) saturate(180%) url("#lg-glass-distortion");
+}
+
 .lg-nav {
   position: fixed;
   top: 20px;
@@ -348,11 +359,6 @@
   border-radius: 999px;
   will-change: transform;
   touch-action: none;
-  background: var(--glass-fill);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 .lg-preloader-tag.lg-dragging {
   cursor: grabbing;
