@@ -1,10 +1,10 @@
 export const PROJECTS = [
   {
-    title: "Proyecto uno",
+    title: "Kit de Liquid Glass",
     description:
-      "Descripción breve y honesta: qué hace, qué aprendiste al hacerlo, qué le falta todavía.",
-    tags: ["react", "css"],
-    gradient: "linear-gradient(135deg, var(--blob-a), var(--blob-b))",
+      "Todo lo que armamos para que el vidrio líquido funcione de verdad entre navegadores: distorsión real vía filtro SVG (no backdrop-filter, poco confiable), aplicada acá a formas básicas.",
+    tags: ["react", "svg filters", "clip-path"],
+    media: "shapes",
   },
   {
     title: "Proyecto dos",

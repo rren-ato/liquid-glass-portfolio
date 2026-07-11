@@ -1,7 +1,13 @@
+import LiquidShapesDemo from "./LiquidShapesDemo";
+
 export default function ProjectCard({ project }) {
   return (
     <div className="lg-glass lg-project-card">
-      <div className="lg-project-thumb" style={{ background: project.gradient }} />
+      {project.media === "shapes" ? (
+        <LiquidShapesDemo />
+      ) : (
+        <div className="lg-project-thumb" style={{ background: project.gradient }} />
+      )}
       <h3>{project.title}</h3>
       <p>{project.description}</p>
       <div className="lg-tag-row">
