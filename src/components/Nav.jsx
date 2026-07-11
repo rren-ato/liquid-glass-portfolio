@@ -18,6 +18,9 @@ export default function Nav({ onNavigate }) {
   const linkRefs = useRef([]);
   const labelRefs = useRef([]);
   const indicatorRef = useRef(null);
+  const containerRef = useRef(null);
+  const activeIndexRef = useRef(0);
+  const draggingRef = useRef(false);
 
   const rectOf = (index) => {
     const el = linkRefs.current[index];
@@ -29,7 +32,7 @@ export default function Nav({ onNavigate }) {
     setIndicator(rectOf(activeIndex));
     requestAnimationFrame(() => requestAnimationFrame(() => setTransition(SETTLE_EASE)));
 
-    const onResize = () => setIndicator(rectOf(activeIndex));
+    const onResize = () => setIndicator(rectOf(activeIndexRef.current));
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,6 +74,7 @@ export default function Nav({ onNavigate }) {
   }, [activeIndex]);
 
   const goTo = (index) => {
+    if (index === activeIndexRef.current) return;
     const target = rectOf(index);
 
     setIndicator((prev) => {
@@ -85,20 +89,51 @@ export default function Nav({ onNavigate }) {
       setTransition(SETTLE_EASE);
     }, STRETCH_MS);
 
+    activeIndexRef.current = index;
     setActiveIndex(index);
+    onNavigate(NAV_LINKS[index].href);
   };
 
-  const handleClick = (e, link, index) => {
-    e.preventDefault();
-    goTo(index);
-    onNavigate(link.href);
+  // permite deslizar el dedo/mouse por el nav y que el indicador
+  // vaya "siguiendo" el tab que está debajo, como en la tab bar de Música
+  const indexAtPointer = (clientX) => {
+    let found = null;
+    linkRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (clientX >= r.left && clientX <= r.right) found = i;
+    });
+    return found;
+  };
+
+  const handlePointerDown = (e) => {
+    draggingRef.current = true;
+    containerRef.current?.setPointerCapture(e.pointerId);
+    const i = indexAtPointer(e.clientX);
+    if (i !== null) goTo(i);
+  };
+  const handlePointerMove = (e) => {
+    if (!draggingRef.current) return;
+    const i = indexAtPointer(e.clientX);
+    if (i !== null) goTo(i);
+  };
+  const endDrag = () => {
+    draggingRef.current = false;
   };
 
   return (
     <nav className="lg-nav lg-liquid-surface">
       <LiquidBlobLayer />
       <div className="lg-liquid-tint" />
-      <div className="lg-liquid-content lg-nav-links">
+      <div
+        ref={containerRef}
+        className="lg-liquid-content lg-nav-links"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onContextMenu={(e) => e.preventDefault()}
+      >
         <span
           ref={indicatorRef}
           className="lg-nav-indicator"
@@ -109,7 +144,10 @@ export default function Nav({ onNavigate }) {
             key={link.href}
             href={`#${link.href}`}
             ref={(el) => (linkRefs.current[i] = el)}
-            onClick={(e) => handleClick(e, link, i)}
+            onClick={(e) => {
+              e.preventDefault();
+              goTo(i);
+            }}
           >
             <span ref={(el) => (labelRefs.current[i] = el)} className="lg-nav-label">
               {link.label}

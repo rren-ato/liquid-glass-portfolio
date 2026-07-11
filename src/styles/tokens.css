@@ -127,6 +127,8 @@ button {
   display: flex;
   gap: 4px;
   padding: 8px;
+  touch-action: none; /* habilita el arrastre horizontal sin que el navegador
+                          lo interprete como scroll/zoom */
 }
 /* El indicador que se mueve entre tabs. La transición (left/width)
    se controla desde Nav.jsx en dos fases: primero se estira para
@@ -154,6 +156,10 @@ button {
   border-radius: 999px;
   transition: color 0.2s, background 0.2s;
   cursor: pointer;
+  -webkit-touch-callout: none; /* evita el menú "Abrir/Copiar" de Safari en long-press */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 .lg-nav-label {
   display: inline-block;
