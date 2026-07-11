@@ -17,6 +17,22 @@
   box-sizing: border-box;
 }
 
+/* --- interacción táctil ---
+   Sin esto: el navegador puede tratar links/botones como texto
+   seleccionable en touch (resaltado gris feo, callout de "copiar",
+   sin feedback visual al tocar porque :hover no es confiable en touch). */
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.lg-nav a,
+.lg-btn,
+.lg-footer a {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .lg-root {
   position: relative;
   background: var(--bg);
@@ -122,7 +138,8 @@
   cursor: pointer;
 }
 .lg-nav a:hover,
-.lg-nav a:focus-visible {
+.lg-nav a:focus-visible,
+.lg-nav a:active {
   color: var(--text-primary);
   background: var(--glass-fill-strong);
 }
@@ -208,6 +225,10 @@
   cursor: pointer;
   border: none;
   color: var(--text-primary);
+  transition: transform 0.15s ease;
+}
+.lg-btn:active {
+  transform: scale(0.96);
 }
 .lg-btn.primary {
   background: linear-gradient(120deg, var(--blob-a), var(--blob-b));

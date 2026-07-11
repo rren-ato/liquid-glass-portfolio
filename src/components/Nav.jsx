@@ -8,7 +8,14 @@ export default function Nav({ onNavigate }) {
       <div className="lg-liquid-tint" />
       <div className="lg-liquid-content lg-nav-links">
         {NAV_LINKS.map((link) => (
-          <a key={link.href} onClick={() => onNavigate(link.href)}>
+          <a
+            key={link.href}
+            href={`#${link.href}`}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate(link.href);
+            }}
+          >
             {link.label}
           </a>
         ))}
