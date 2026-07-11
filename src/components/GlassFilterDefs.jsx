@@ -31,7 +31,7 @@ export default function GlassFilterDefs() {
         <feDisplacementMap
           in="SourceGraphic"
           in2="softNoise"
-          scale="18"
+          scale="55"
           xChannelSelector="R"
           yChannelSelector="G"
         />
