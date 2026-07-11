@@ -17,7 +17,7 @@ liquid-glass-portfolio/
     │   └── tokens.css         ← colores, tipografía, todos los estilos
     ├── data/
     │   ├── nav.js              ← links del menú
-    │   └── projects.js         ← tus proyectos (editá esto para agregar los tuyos)
+    │   └── projects.js         ← mis proyectos 
     └── components/
         ├── BlobCanvas.jsx      ← fondo animado (creative coding)
         ├── Nav.jsx
