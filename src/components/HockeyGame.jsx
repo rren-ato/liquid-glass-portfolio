@@ -28,6 +28,8 @@ export default function HockeyGame() {
     let ai = { x: 0, y: 0 };
     let frozen = 40; // frames de pausa al arrancar/después de un gol
     let scoreRef = { player: 0, ai: 0 };
+    let frame = 0;
+    let stallHistory = []; // muestras periódicas de posición del disco
 
     const resize = () => {
       const rect = wrap.getBoundingClientRect();
@@ -52,6 +54,25 @@ export default function HockeyGame() {
       puck.vx = Math.cos(angle) * 2.4;
       puck.vy = Math.sin(angle) * 2.4;
       frozen = 40;
+      stallHistory = [];
+    };
+
+    // "tiro de esquina": si el disco queda dando vueltas atascado cerca
+    // de una pared, se reinicia desde ahí mismo con un tiro hacia el
+    // centro — sin ninguna cuenta regresiva visible, solo una pausa
+    // breve (reutiliza el mismo `frozen` del arranque/gol).
+    const cornerKick = () => {
+      const cx = puck.x < W / 2 ? PUCK_R + 8 : W - PUCK_R - 8;
+      const cy = puck.y < H / 2 ? PUCK_R + 8 : H - PUCK_R - 8;
+      puck.x = cx;
+      puck.y = cy;
+      const angleToCenter = Math.atan2(H / 2 - cy, W / 2 - cx);
+      const spread = (Math.random() - 0.5) * 0.6;
+      const speed = 4.2;
+      puck.vx = Math.cos(angleToCenter + spread) * speed;
+      puck.vy = Math.sin(angleToCenter + spread) * speed;
+      frozen = 16;
+      stallHistory = [];
     };
 
     resize();
@@ -175,6 +196,30 @@ export default function HockeyGame() {
         const angle = Math.random() * Math.PI * 2;
         puck.vx = Math.cos(angle) * minSpeed;
         puck.vy = Math.sin(angle) * minSpeed;
+      }
+
+      // detección de atasco: cada 15 frames guardamos la posición del
+      // disco; si en las últimas ~4 muestras (≈1s) apenas se movió Y
+      // está cerca de una pared, asumimos que quedó dando vueltas en
+      // el mismo rincón y disparamos el "tiro de esquina".
+      frame++;
+      if (frame % 15 === 0) {
+        stallHistory.push({ x: puck.x, y: puck.y });
+        if (stallHistory.length > 4) stallHistory.shift();
+        if (stallHistory.length === 4) {
+          const xs = stallHistory.map((p) => p.x);
+          const ys = stallHistory.map((p) => p.y);
+          const rangeX = Math.max(...xs) - Math.min(...xs);
+          const rangeY = Math.max(...ys) - Math.min(...ys);
+          const nearWall =
+            puck.x < PUCK_R + 40 ||
+            puck.x > W - PUCK_R - 40 ||
+            puck.y < PUCK_R + 40 ||
+            puck.y > H - PUCK_R - 40;
+          if (rangeX < 30 && rangeY < 30 && nearWall) {
+            cornerKick();
+          }
+        }
       }
     }
 
