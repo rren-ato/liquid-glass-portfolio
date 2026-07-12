@@ -63,7 +63,13 @@ export default function HockeyGame() {
     // breve (reutiliza el mismo `frozen` del arranque/gol).
     const cornerKick = () => {
       const cx = puck.x < W / 2 ? PUCK_R + 8 : W - PUCK_R - 8;
-      const cy = puck.y < H / 2 ? PUCK_R + 8 : H - PUCK_R - 8;
+      // clave: la Y no se calcula contra la pared, sino contra la paleta
+      // que defiende ese lado — así el disco aparece ADELANTE de ella
+      // (del lado de la cancha), no atrapado detrás contra el muro.
+      const topHalf = puck.y < H / 2;
+      const cy = topHalf
+        ? ai.y + PADDLE_R + PUCK_R + 10
+        : player.y - PADDLE_R - PUCK_R - 10;
       puck.x = cx;
       puck.y = cy;
       const angleToCenter = Math.atan2(H / 2 - cy, W / 2 - cx);
