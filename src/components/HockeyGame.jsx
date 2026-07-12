@@ -71,7 +71,7 @@ export default function HockeyGame() {
       const rect = canvas.getBoundingClientRect();
       let x = clientX - rect.left;
       let y = clientY - rect.top;
-      x = Math.max(PADDLE_R, Math.min(W - PADDLE_R, x));
+      x = Math.max(PADDLE_R + 14, Math.min(W - PADDLE_R - 14, x));
       y = Math.max(H / 2 + PADDLE_R, Math.min(H - PADDLE_R, y));
       player.px = player.x;
       player.py = player.y;
@@ -112,7 +112,7 @@ export default function HockeyGame() {
       const aiSpeed = 3.2;
       const dx = puck.x - ai.x;
       ai.x += Math.max(-aiSpeed, Math.min(aiSpeed, dx));
-      ai.x = Math.max(PADDLE_R, Math.min(W - PADDLE_R, ai.x));
+      ai.x = Math.max(PADDLE_R + 14, Math.min(W - PADDLE_R - 14, ai.x));
       ai.y = 46;
 
       puck.x += puck.vx;
@@ -159,12 +159,22 @@ export default function HockeyGame() {
       collide(player, player.x - player.px, player.y - player.py);
       collide(ai, 0, 0);
 
-      // fricción leve + tope de velocidad
+      // tope de velocidad + PISO de velocidad (esto es lo que evita que el
+      // disco quede "atrapado" casi inmóvil en una esquina, rebotando entre
+      // la pared y una paleta con una velocidad cada vez más chica)
       const speed = Math.hypot(puck.vx, puck.vy);
       const maxSpeed = 9;
+      const minSpeed = 3.2;
       if (speed > maxSpeed) {
         puck.vx = (puck.vx / speed) * maxSpeed;
         puck.vy = (puck.vy / speed) * maxSpeed;
+      } else if (speed > 0.0001 && speed < minSpeed) {
+        puck.vx = (puck.vx / speed) * minSpeed;
+        puck.vy = (puck.vy / speed) * minSpeed;
+      } else if (speed <= 0.0001) {
+        const angle = Math.random() * Math.PI * 2;
+        puck.vx = Math.cos(angle) * minSpeed;
+        puck.vy = Math.sin(angle) * minSpeed;
       }
     }
 
