@@ -7,11 +7,11 @@ export const PROJECTS = [
     media: "shapes",
   },
   {
-    title: "Proyecto dos",
+    title: "Air Hockey",
     description:
-      "Otro proyecto real o de práctica — no hace falta que sea perfecto, solo que sea tuyo.",
-    tags: ["javascript", "api"],
-    gradient: "linear-gradient(135deg, var(--blob-b), var(--blob-c))",
+      "Air hockey jugable de verdad — vos contra una IA simple. Física de colisiones y rebotes hecha a mano en canvas, con los colores del sitio en vez de copiar un diseño ajeno.",
+    tags: ["canvas", "javascript", "juego"],
+    media: "hockey",
   },
   {
     title: "Proyecto tres",
