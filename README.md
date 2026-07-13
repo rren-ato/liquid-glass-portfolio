@@ -17,7 +17,7 @@ liquid-glass-portfolio/
     │   └── tokens.css         ← colores, tipografía, todos los estilos
     ├── data/
     │   ├── nav.js              ← links del menú
-    │   └── projects.js         ← tus proyectos (actualizaciones)
+    │   └── projects.js         ← mis proyectos (actualizaciones)
     └── components/
         ├── BlobCanvas.jsx      ← fondo animado (creative coding)
         ├── Nav.jsx
@@ -31,7 +31,7 @@ liquid-glass-portfolio/
 
 
 **. Para subir cambios futuros**, ya no hace falta repetir todo, solo:
-
+(aun ando practicando esto)
 ```bash
 git add .
 git commit -m "descripción de lo que cambiaste"
