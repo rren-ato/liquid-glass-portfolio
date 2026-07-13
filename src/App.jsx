@@ -9,6 +9,7 @@ import About from "./components/About";
 import Projects from "./components/Projects";
 import Playground from "./components/Playground";
 import Footer from "./components/Footer";
+import MusicRegistry from "./components/MusicRegistry";
 
 export default function App() {
   const handleNavigate = (id) => {
@@ -32,6 +33,8 @@ export default function App() {
         <Playground />
         <Footer />
       </div>
+
+      <MusicRegistry />
     </div>
   );
 }
