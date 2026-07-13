@@ -17,6 +17,11 @@ export default function MusicRegistry() {
   const [search, setSearch] = useState("");
   const [lastQuery, setLastQuery] = useState("");
   const [form, setForm] = useState({ titulo: "", artista: "", anio: "" });
+  const [nowPlaying, setNowPlaying] = useState(null);
+
+  const togglePlay = (song) => {
+    setNowPlaying((current) => (current?.id === song.id ? null : song));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -83,13 +88,14 @@ export default function MusicRegistry() {
     const sql = `DELETE FROM canciones WHERE id = ${id};`;
     dbRef.current.run(sql);
     setLastQuery(sql);
+    setNowPlaying((current) => (current?.id === id ? null : current));
     refresh(dbRef.current, search);
   };
 
   return (
     <>
       <button
-        className="lg-glass lg-music-toggle"
+        className={`lg-glass lg-music-toggle ${nowPlaying ? "lg-music-toggle-playing" : ""}`}
         onClick={() => setIsOpen((v) => !v)}
         aria-label={isOpen ? "Cerrar registro de música" : "Abrir registro de música"}
       >
@@ -102,10 +108,26 @@ export default function MusicRegistry() {
             <LiquidBlobLayer />
             <div className="lg-liquid-tint" />
             <div className="lg-music-header-content">
-              <span className="lg-eyebrow" style={{ marginBottom: 0 }}>
-                SELECT * FROM canciones
-              </span>
-              <h4>Registro de música</h4>
+              {nowPlaying ? (
+                <>
+                  <span className="lg-eq" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                  <div>
+                    <h4>{nowPlaying.titulo}</h4>
+                    <span className="lg-music-now-artist">{nowPlaying.artista}</span>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <span className="lg-eyebrow" style={{ marginBottom: 0 }}>
+                    SELECT * FROM canciones
+                  </span>
+                  <h4>Registro de música</h4>
+                </div>
+              )}
             </div>
           </div>
 
@@ -124,7 +146,19 @@ export default function MusicRegistry() {
                 <ul className="lg-music-list">
                   {songs.length === 0 && <li className="lg-music-hint">sin resultados</li>}
                   {songs.map((s) => (
-                    <li key={s.id} className="lg-music-row">
+                    <li
+                      key={s.id}
+                      className={`lg-music-row ${
+                        nowPlaying?.id === s.id ? "lg-music-row-playing" : ""
+                      }`}
+                    >
+                      <button
+                        className="lg-music-play"
+                        onClick={() => togglePlay(s)}
+                        aria-label={nowPlaying?.id === s.id ? `Pausar ${s.titulo}` : `Reproducir ${s.titulo}`}
+                      >
+                        {nowPlaying?.id === s.id ? "❚❚" : "▶"}
+                      </button>
                       <div>
                         <strong>{s.titulo}</strong>
                         <span className="lg-music-artist">
