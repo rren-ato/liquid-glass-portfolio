@@ -10,6 +10,7 @@ import Projects from "./components/Projects";
 import Playground from "./components/Playground";
 import Footer from "./components/Footer";
 import MusicRegistry from "./components/MusicRegistry";
+import AmbientAudio from "./components/AmbientAudio";
 
 export default function App() {
   const handleNavigate = (id) => {
@@ -35,6 +36,7 @@ export default function App() {
       </div>
 
       <MusicRegistry />
+      <AmbientAudio />
     </div>
   );
 }

@@ -9,6 +9,16 @@ export default function Footer() {
         <a href="#">LinkedIn</a>
         <a href="#">Email</a>
       </div>
+      <p className="lg-music-credit">
+        Música: "Fluidscape" por{" "}
+        <a href="https://incompetech.com" target="_blank" rel="noreferrer">
+          Kevin MacLeod (incompetech.com)
+        </a>{" "}
+        — Licencia:{" "}
+        <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">
+          CC BY 3.0
+        </a>
+      </p>
     </footer>
   );
 }

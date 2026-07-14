@@ -446,6 +446,18 @@ button {
 .lg-footer a:hover {
   color: var(--text-primary);
 }
+.lg-music-credit {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.7;
+  order: 3;
+}
+.lg-music-credit a {
+  color: var(--blob-b);
+  text-decoration: underline;
+}
 
 @media (max-width: 640px) {
   .lg-nav {
@@ -798,6 +810,22 @@ button {
   color: var(--text-muted);
 }
 
+.lg-ambient-toggle {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 50;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 640px) {
   .lg-music-panel {
     right: 12px;
@@ -805,6 +833,9 @@ button {
   }
   .lg-music-toggle {
     right: 16px;
+  }
+  .lg-ambient-toggle {
+    left: 16px;
   }
 }
 
