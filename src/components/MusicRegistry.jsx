@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import initSqlJs from "sql.js";
 import wasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 import LiquidBlobLayer from "./LiquidBlobLayer";
+import { useAudioPlayer } from "./AudioPlayerContext";
 
 /**
  * Mini registro de música — ventanita flotante, no tarjeta de proyecto.
@@ -15,14 +16,13 @@ import LiquidBlobLayer from "./LiquidBlobLayer";
  */
 export default function MusicRegistry() {
   const dbRef = useRef(null);
-  const audioRef = useRef(null);
+  const { current: nowPlaying, play, stop } = useAudioPlayer();
   const [ready, setReady] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [songs, setSongs] = useState([]);
   const [search, setSearch] = useState("");
   const [lastQuery, setLastQuery] = useState("");
   const [form, setForm] = useState({ titulo: "", artista: "", anio: "" });
-  const [nowPlaying, setNowPlaying] = useState(null);
   const [playError, setPlayError] = useState(null);
 
   useEffect(() => {
@@ -50,7 +50,6 @@ export default function MusicRegistry() {
     return () => {
       cancelled = true;
       dbRef.current?.close();
-      audioRef.current?.pause();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -93,40 +92,25 @@ export default function MusicRegistry() {
     const sql = `DELETE FROM canciones WHERE id = ${id};`;
     dbRef.current.run(sql);
     setLastQuery(sql);
-    setNowPlaying((current) => (current?.id === id ? null : current));
+    if (nowPlaying?.id === id) stop();
     refresh(dbRef.current, search);
   };
 
   const togglePlay = (song) => {
-    const audio = audioRef.current;
-
-    if (nowPlaying?.id === song.id) {
-      audio.pause();
-      setNowPlaying(null);
-      return;
-    }
-
     if (!song.archivo) {
       setPlayError(`"${song.titulo}" no tiene un archivo de audio asociado.`);
       setTimeout(() => setPlayError(null), 3000);
       return;
     }
 
-    audio.src = song.archivo;
-    audio
-      .play()
-      .then(() => setNowPlaying(song))
-      .catch(() => {
-        setPlayError(`No encontré el archivo de "${song.titulo}" todavía en ${song.archivo}`);
-        setNowPlaying(null);
-        setTimeout(() => setPlayError(null), 4000);
-      });
+    play(song).catch(() => {
+      setPlayError(`No encontré el archivo de "${song.titulo}" todavía en ${song.archivo}`);
+      setTimeout(() => setPlayError(null), 4000);
+    });
   };
 
   return (
     <>
-      <audio ref={audioRef} onEnded={() => setNowPlaying(null)} />
-
       <button
         className={`lg-glass lg-music-toggle ${nowPlaying ? "lg-music-toggle-playing" : ""}`}
         onClick={() => setIsOpen((v) => !v)}

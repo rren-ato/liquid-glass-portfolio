@@ -1,45 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import { useAudioPlayer } from "./AudioPlayerContext";
 
 /**
- * Control de música ambiente de fondo (Fluidscape, Kevin MacLeod).
- * Arranca SIEMPRE apagado: los navegadores bloquean el autoplay con
- * sonido de todas formas, y además es mejor práctica no imponerle
- * audio a nadie sin que lo pida — la persona lo prende si quiere.
+ * Ya no reproduce nada por su cuenta — eso lo decide el Registro
+ * de música. Este botón solo silencia/reactiva lo que sea que esté
+ * sonando en ese momento (o lo próximo que suene).
  */
 export default function AmbientAudio() {
-  const audioRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
+  const { current, muted, toggleMute } = useAudioPlayer();
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    audio.volume = 0.35;
-    audio.loop = true;
-  }, []);
-
-  const toggle = () => {
-    const audio = audioRef.current;
-    if (playing) {
-      audio.pause();
-      setPlaying(false);
-    } else {
-      audio.play().catch(() => {
-        // si el navegador igual bloquea el play, no rompemos nada
-      });
-      setPlaying(true);
-    }
-  };
+  const icon = muted ? "🔇" : current ? "🔊" : "🔈";
+  const label = muted ? "Activar sonido" : "Silenciar";
 
   return (
-    <>
-      <audio ref={audioRef} src="/audio/fluidscape.mp3" preload="none" />
-      <button
-        className="lg-glass lg-ambient-toggle"
-        onClick={toggle}
-        aria-label={playing ? "Silenciar música de fondo" : "Reproducir música de fondo"}
-        title={playing ? "Silenciar música de fondo" : "Reproducir música de fondo"}
-      >
-        {playing ? "🔊" : "🔈"}
-      </button>
-    </>
+    <button
+      className="lg-glass lg-ambient-toggle"
+      onClick={toggleMute}
+      aria-label={label}
+      title={label}
+    >
+      {icon}
+    </button>
   );
 }

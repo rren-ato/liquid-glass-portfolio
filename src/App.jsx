@@ -11,6 +11,7 @@ import Playground from "./components/Playground";
 import Footer from "./components/Footer";
 import MusicRegistry from "./components/MusicRegistry";
 import AmbientAudio from "./components/AmbientAudio";
+import { AudioPlayerProvider } from "./components/AudioPlayerContext";
 
 export default function App() {
   const handleNavigate = (id) => {
@@ -35,8 +36,10 @@ export default function App() {
         <Footer />
       </div>
 
-      <MusicRegistry />
-      <AmbientAudio />
+      <AudioPlayerProvider>
+        <MusicRegistry />
+        <AmbientAudio />
+      </AudioPlayerProvider>
     </div>
   );
 }
