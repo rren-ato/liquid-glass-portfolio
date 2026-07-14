@@ -8,9 +8,14 @@ import LiquidBlobLayer from "./LiquidBlobLayer";
  * Corre SQLite de verdad en el navegador (sql.js / WebAssembly).
  * Las queries son reales: INSERT, SELECT, WHERE, ORDER BY, DELETE.
  * No hay persistencia todavía: se reinicia al recargar la página.
+ *
+ * La columna `archivo` guarda la ruta al mp3 real (en /public/audio/).
+ * El botón ▶ intenta reproducir ese archivo de verdad; si no existe
+ * todavía (no lo subiste), lo avisa en vez de romper la página.
  */
 export default function MusicRegistry() {
   const dbRef = useRef(null);
+  const audioRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [songs, setSongs] = useState([]);
@@ -18,10 +23,7 @@ export default function MusicRegistry() {
   const [lastQuery, setLastQuery] = useState("");
   const [form, setForm] = useState({ titulo: "", artista: "", anio: "" });
   const [nowPlaying, setNowPlaying] = useState(null);
-
-  const togglePlay = (song) => {
-    setNowPlaying((current) => (current?.id === song.id ? null : song));
-  };
+  const [playError, setPlayError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,11 +35,13 @@ export default function MusicRegistry() {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           titulo TEXT NOT NULL,
           artista TEXT NOT NULL,
-          anio INTEGER
+          anio INTEGER,
+          archivo TEXT
         );
-        INSERT INTO canciones (titulo, artista, anio) VALUES
-          ('Only Wanna Be With You', 'Hootie & The Blowfish', 1994),
-          ('Tiempos de Resurrección', 'Amén', 1996);
+        INSERT INTO canciones (titulo, artista, anio, archivo) VALUES
+          ('Fluidscape', 'Kevin MacLeod', NULL, '/audio/fluidscape.mp3'),
+          ('Digital Lemonade', 'Kevin MacLeod', NULL, '/audio/digital-lemonade.mp3'),
+          ('Shiny Tech', 'Kevin MacLeod', NULL, '/audio/shiny-tech.mp3');
       `);
       dbRef.current = db;
       setReady(true);
@@ -46,6 +50,7 @@ export default function MusicRegistry() {
     return () => {
       cancelled = true;
       dbRef.current?.close();
+      audioRef.current?.pause();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -92,8 +97,36 @@ export default function MusicRegistry() {
     refresh(dbRef.current, search);
   };
 
+  const togglePlay = (song) => {
+    const audio = audioRef.current;
+
+    if (nowPlaying?.id === song.id) {
+      audio.pause();
+      setNowPlaying(null);
+      return;
+    }
+
+    if (!song.archivo) {
+      setPlayError(`"${song.titulo}" no tiene un archivo de audio asociado.`);
+      setTimeout(() => setPlayError(null), 3000);
+      return;
+    }
+
+    audio.src = song.archivo;
+    audio
+      .play()
+      .then(() => setNowPlaying(song))
+      .catch(() => {
+        setPlayError(`No encontré el archivo de "${song.titulo}" todavía en ${song.archivo}`);
+        setNowPlaying(null);
+        setTimeout(() => setPlayError(null), 4000);
+      });
+  };
+
   return (
     <>
+      <audio ref={audioRef} onEnded={() => setNowPlaying(null)} />
+
       <button
         className={`lg-glass lg-music-toggle ${nowPlaying ? "lg-music-toggle-playing" : ""}`}
         onClick={() => setIsOpen((v) => !v)}
@@ -143,6 +176,8 @@ export default function MusicRegistry() {
                   onChange={handleSearch}
                 />
 
+                {playError && <p className="lg-music-error">{playError}</p>}
+
                 <ul className="lg-music-list">
                   {songs.length === 0 && <li className="lg-music-hint">sin resultados</li>}
                   {songs.map((s) => (
@@ -155,7 +190,9 @@ export default function MusicRegistry() {
                       <button
                         className="lg-music-play"
                         onClick={() => togglePlay(s)}
-                        aria-label={nowPlaying?.id === s.id ? `Pausar ${s.titulo}` : `Reproducir ${s.titulo}`}
+                        aria-label={
+                          nowPlaying?.id === s.id ? `Pausar ${s.titulo}` : `Reproducir ${s.titulo}`
+                        }
                       >
                         {nowPlaying?.id === s.id ? "❚❚" : "▶"}
                       </button>
@@ -200,7 +237,8 @@ export default function MusicRegistry() {
 
                 <p className="lg-music-sql">$ {lastQuery}</p>
                 <p className="lg-music-hint">
-                  corre en tu navegador con SQLite (sql.js) — se reinicia al recargar
+                  corre en tu navegador con SQLite (sql.js) — se reinicia al recargar. Las
+                  canciones agregadas a mano no van a tener archivo de audio propio.
                 </p>
               </>
             )}

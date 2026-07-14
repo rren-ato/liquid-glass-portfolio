@@ -809,6 +809,15 @@ button {
   font-size: 11px;
   color: var(--text-muted);
 }
+.lg-music-error {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blob-a);
+  background: rgba(255, 110, 199, 0.12);
+  border: 1px solid rgba(255, 110, 199, 0.3);
+  padding: 6px 10px;
+  border-radius: 8px;
+}
 
 .lg-ambient-toggle {
   position: fixed;

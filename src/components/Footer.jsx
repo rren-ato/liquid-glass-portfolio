@@ -10,7 +10,7 @@ export default function Footer() {
         <a href="#">Email</a>
       </div>
       <p className="lg-music-credit">
-        Música: "Fluidscape" por{" "}
+        Música: "Fluidscape", "Digital Lemonade" y "Shiny Tech" por{" "}
         <a href="https://incompetech.com" target="_blank" rel="noreferrer">
           Kevin MacLeod (incompetech.com)
         </a>{" "}
