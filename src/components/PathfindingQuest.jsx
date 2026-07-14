@@ -169,7 +169,7 @@ export default function PathfindingQuest() {
       for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
           const isRiver = mapData.terrain[y][x] === "river";
-          ctx.fillStyle = isRiver ? "rgba(94,231,255,0.16)" : "rgba(255,255,255,0.04)";
+          ctx.fillStyle = isRiver ? "rgba(94,180,255,0.3)" : "rgba(255,255,255,0.04)";
           ctx.fillRect(x * cw + 1, y * ch + 1, cw - 2, ch - 2);
         }
       }
@@ -179,16 +179,26 @@ export default function PathfindingQuest() {
           a.phase === "exploring" ? a.revealCount : a.result.exploredOrder.length;
         for (let i = 0; i < shown; i++) {
           const n = a.result.exploredOrder[i];
-          ctx.fillStyle = `rgba(${a.color},0.45)`;
+          ctx.fillStyle = `rgba(${a.color},0.4)`;
           ctx.fillRect(n.x * cw + 1, n.y * ch + 1, cw - 2, ch - 2);
           ctx.strokeStyle = `rgba(${a.color},0.9)`;
           ctx.lineWidth = 1.5;
           ctx.strokeRect(n.x * cw + 1.5, n.y * ch + 1.5, cw - 3, ch - 3);
+
+          // el río se repinta encima del escaneo para que siga
+          // leyéndose como agua aunque esa celda ya esté explorada
+          if (mapData.terrain[n.y][n.x] === "river") {
+            ctx.fillStyle = "rgba(94,180,255,0.28)";
+            ctx.fillRect(n.x * cw + 1, n.y * ch + 1, cw - 2, ch - 2);
+          }
         }
 
         if (a.phase === "walking" || a.phase === "done") {
           const path = a.result.path;
+          const explorerT = a.phase === "done" ? 1 : a.walkT;
+          const explorerPos = explorerT * (path.length - 1);
           const upTo = a.phase === "done" ? path.length : Math.ceil(path.length * a.walkT);
+
           ctx.strokeStyle = "#FFD166";
           ctx.lineWidth = Math.max(2, cw * 0.15);
           ctx.beginPath();
@@ -200,20 +210,27 @@ export default function PathfindingQuest() {
           });
           ctx.stroke();
 
-          // tablones sobre las celdas de río que son parte del camino
-          path.slice(0, upTo).forEach((n) => {
-            if (mapData.terrain[n.y][n.x] === "river") {
-              ctx.strokeStyle = "rgba(15,12,34,0.6)";
-              ctx.lineWidth = 1;
-              const px = n.x * cw;
-              const py = n.y * ch;
-              for (let p = 2; p < ch; p += 5) {
-                ctx.beginPath();
-                ctx.moveTo(px + 2, py + p);
-                ctx.lineTo(px + cw - 2, py + p);
-                ctx.stroke();
-              }
-            }
+          // tablones del puente: se van "clavando" uno por uno a medida
+          // que el explorador realmente llega a esa celda de río, no
+          // todos de golpe al pisar el borde de la celda.
+          path.forEach((n, i) => {
+            if (mapData.terrain[n.y][n.x] !== "river") return;
+            const buildProgress = a.phase === "done" ? 1 : Math.max(0, Math.min(1, explorerPos - i + 1));
+            if (buildProgress <= 0) return;
+
+            ctx.strokeStyle = "rgba(15,12,34,0.7)";
+            ctx.lineWidth = 1;
+            const px = n.x * cw;
+            const py = n.y * ch;
+            const plankSlots = [];
+            for (let p = 2; p < ch; p += 5) plankSlots.push(p);
+            const plankCount = Math.ceil(plankSlots.length * buildProgress);
+            plankSlots.slice(0, plankCount).forEach((p) => {
+              ctx.beginPath();
+              ctx.moveTo(px + 2, py + p);
+              ctx.lineTo(px + cw - 2, py + p);
+              ctx.stroke();
+            });
           });
         }
       }
