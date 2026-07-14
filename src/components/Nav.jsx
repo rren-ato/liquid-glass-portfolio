@@ -21,6 +21,7 @@ export default function Nav({ onNavigate }) {
   const containerRef = useRef(null);
   const activeIndexRef = useRef(0);
   const draggingRef = useRef(false);
+  const movingRef = useRef(false); // true solo mientras el indicador se está moviendo
 
   const rectOf = (index) => {
     const el = linkRefs.current[index];
@@ -71,12 +72,13 @@ export default function Nav({ onNavigate }) {
           );
           const ratio = rect.width > 0 ? overlap / rect.width : 0;
           labelEl.style.transform = `scale(${1 + ratio * MAX_GROW})`;
-          labelEl.classList.toggle("lg-chroma-active", ratio > 0.05);
-          if (ratio > maxRatio) maxRatio = ratio;
+          const showChroma = movingRef.current && ratio > 0.05;
+          labelEl.classList.toggle("lg-chroma-active", showChroma);
+          if (showChroma && ratio > maxRatio) maxRatio = ratio;
         });
       }
       // desplaza los canales rojo/azul en direcciones opuestas — solo
-      // se nota mientras el vidrio realmente está tapando una letra
+      // mientras el indicador está en movimiento entre tabs, nunca en reposo
       if (chromaR) chromaR.setAttribute("dx", (-maxRatio * 3.5).toFixed(2));
       if (chromaB) chromaB.setAttribute("dx", (maxRatio * 3.5).toFixed(2));
 
@@ -91,6 +93,8 @@ export default function Nav({ onNavigate }) {
     if (index === activeIndexRef.current) return;
     const target = rectOf(index);
 
+    movingRef.current = true;
+
     setIndicator((prev) => {
       const left = Math.min(prev.left, target.left);
       const right = Math.max(prev.left + prev.width, target.left + target.width);
@@ -102,6 +106,12 @@ export default function Nav({ onNavigate }) {
       setIndicator(target);
       setTransition(SETTLE_EASE);
     }, STRETCH_MS);
+
+    // recién se considera "asentado" cuando termina también la
+    // transición de settle (450ms) — ahí se apaga la aberración
+    setTimeout(() => {
+      movingRef.current = false;
+    }, STRETCH_MS + 460);
 
     activeIndexRef.current = index;
     setActiveIndex(index);
