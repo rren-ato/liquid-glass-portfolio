@@ -103,7 +103,7 @@ export default function PathfindingQuest() {
       revealCount: 0,
       walkT: 0,
       result,
-      color: algorithm === "astar" ? "94,231,255" : "255,209,102",
+      color: algorithm === "astar" ? "126,255,148" : "255,99,99",
     };
     setStats(null);
   };
@@ -179,8 +179,11 @@ export default function PathfindingQuest() {
           a.phase === "exploring" ? a.revealCount : a.result.exploredOrder.length;
         for (let i = 0; i < shown; i++) {
           const n = a.result.exploredOrder[i];
-          ctx.fillStyle = `rgba(${a.color},0.28)`;
+          ctx.fillStyle = `rgba(${a.color},0.45)`;
           ctx.fillRect(n.x * cw + 1, n.y * ch + 1, cw - 2, ch - 2);
+          ctx.strokeStyle = `rgba(${a.color},0.9)`;
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(n.x * cw + 1.5, n.y * ch + 1.5, cw - 3, ch - 3);
         }
 
         if (a.phase === "walking" || a.phase === "done") {
@@ -311,7 +314,7 @@ export default function PathfindingQuest() {
         </p>
       )}
       <p className="lg-music-hint">
-        celeste = explorado con A* (heurística) · ámbar = explorado con Dijkstra (sin heurística)
+        verde = explorado con A* (heurística) · rojo = explorado con Dijkstra (sin heurística)
       </p>
     </div>
   );
