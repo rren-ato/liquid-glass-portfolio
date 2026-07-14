@@ -36,6 +36,46 @@ export default function GlassFilterDefs() {
           yChannelSelector="G"
         />
       </filter>
+
+      {/*
+        Aberración cromática — separa el texto en sus canales R/G/B y
+        desplaza el rojo y el azul en direcciones opuestas (el verde
+        queda fijo en el medio). A diferencia del filtro de arriba,
+        este se aplica con `filter: url()` normal (NO backdrop-filter),
+        que sí tiene soporte sólido en todos los navegadores, Safari
+        incluido — por eso este funciona siempre.
+
+        dx/dy de los feOffset se actualizan por JS (ver Nav.jsx) según
+        cuánto tapa el vidrio a cada letra, así la distorsión aparece
+        justo donde corresponde en vez de estar siempre prendida.
+      */}
+      <filter id="lg-chroma-filter" x="-30%" y="-30%" width="160%" height="160%">
+        <feColorMatrix
+          in="SourceGraphic"
+          type="matrix"
+          values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          result="lg-chroma-red-channel"
+        />
+        <feOffset id="lg-chroma-r" in="lg-chroma-red-channel" dx="0" dy="0" result="lg-chroma-red" />
+
+        <feColorMatrix
+          in="SourceGraphic"
+          type="matrix"
+          values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          result="lg-chroma-green"
+        />
+
+        <feColorMatrix
+          in="SourceGraphic"
+          type="matrix"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+          result="lg-chroma-blue-channel"
+        />
+        <feOffset id="lg-chroma-b" in="lg-chroma-blue-channel" dx="0" dy="0" result="lg-chroma-blue" />
+
+        <feBlend in="lg-chroma-red" in2="lg-chroma-green" mode="screen" result="lg-chroma-rg" />
+        <feBlend in="lg-chroma-rg" in2="lg-chroma-blue" mode="screen" />
+      </filter>
     </svg>
   );
 }
