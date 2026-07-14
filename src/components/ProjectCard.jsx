@@ -1,11 +1,13 @@
 import LiquidShapesDemo from "./LiquidShapesDemo";
 import HockeyGame from "./HockeyGame";
+import PathfindingQuest from "./PathfindingQuest";
 
 export default function ProjectCard({ project }) {
   return (
     <div className="lg-glass lg-project-card">
       {project.media === "shapes" && <LiquidShapesDemo />}
       {project.media === "hockey" && <HockeyGame />}
+      {project.media === "pathfinding" && <PathfindingQuest />}
       {!project.media && (
         <div className="lg-project-thumb" style={{ background: project.gradient }} />
       )}

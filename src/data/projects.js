@@ -14,9 +14,10 @@ export const PROJECTS = [
     media: "hockey",
   },
   {
-    title: "Proyecto tres",
-    description: "Espacio para el próximo experimento. Reemplazá este texto cuando lo tengas.",
-    tags: ["experimento"],
-    gradient: "linear-gradient(135deg, var(--blob-c), var(--blob-a))",
+    title: "Cruce del Río (A* vs Dijkstra)",
+    description:
+      "Un explorador cruza un río construyendo su propio puente. Alterná entre A* y Dijkstra sobre el mismo mapa para ver en vivo cuánto menos explora A* gracias a la heurística.",
+    tags: ["algoritmos", "canvas", "pathfinding"],
+    media: "pathfinding",
   },
 ];

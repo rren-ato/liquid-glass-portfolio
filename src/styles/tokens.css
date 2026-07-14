@@ -848,6 +848,64 @@ button {
   }
 }
 
+/* --- cruce del río (A* / Dijkstra) --- */
+.lg-quest {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lg-quest-map {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+.lg-quest-map canvas {
+  display: block;
+  width: 100%;
+}
+.lg-quest-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lg-quest-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  padding: 3px;
+}
+.lg-quest-toggle button {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.lg-quest-toggle button.active {
+  background: var(--glass-fill-strong);
+  color: var(--text-primary);
+}
+.lg-quest-buttons {
+  display: flex;
+  gap: 6px;
+}
+.lg-quest-buttons .lg-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+}
+.lg-quest-stats {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blob-c);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lg-root * {
     animation: none !important;
