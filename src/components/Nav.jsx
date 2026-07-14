@@ -21,7 +21,6 @@ export default function Nav({ onNavigate }) {
   const containerRef = useRef(null);
   const activeIndexRef = useRef(0);
   const draggingRef = useRef(false);
-  const movingRef = useRef(false); // true solo mientras el indicador se está moviendo
 
   const rectOf = (index) => {
     const el = linkRefs.current[index];
@@ -42,24 +41,17 @@ export default function Nav({ onNavigate }) {
   // "lupa": mide en cada frame cuánto tapa el vidrio a cada texto y lo agranda en proporción
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const chromaR = document.getElementById("lg-chroma-r");
-    const chromaB = document.getElementById("lg-chroma-b");
 
     if (reduceMotion) {
       labelRefs.current.forEach((el, i) => {
-        if (!el) return;
-        el.style.transform = i === activeIndex ? `scale(${1 + MAX_GROW})` : "scale(1)";
-        el.classList.remove("lg-chroma-active");
+        if (el) el.style.transform = i === activeIndex ? `scale(${1 + MAX_GROW})` : "scale(1)";
       });
-      chromaR?.setAttribute("dx", 0);
-      chromaB?.setAttribute("dx", 0);
       return;
     }
 
     let raf;
     const tick = () => {
       const indEl = indicatorRef.current;
-      let maxRatio = 0;
       if (indEl) {
         const indRect = indEl.getBoundingClientRect();
         linkRefs.current.forEach((linkEl, i) => {
@@ -72,16 +64,8 @@ export default function Nav({ onNavigate }) {
           );
           const ratio = rect.width > 0 ? overlap / rect.width : 0;
           labelEl.style.transform = `scale(${1 + ratio * MAX_GROW})`;
-          const showChroma = movingRef.current && ratio > 0.05;
-          labelEl.classList.toggle("lg-chroma-active", showChroma);
-          if (showChroma && ratio > maxRatio) maxRatio = ratio;
         });
       }
-      // desplaza los canales rojo/azul en direcciones opuestas — solo
-      // mientras el indicador está en movimiento entre tabs, nunca en reposo
-      if (chromaR) chromaR.setAttribute("dx", (-maxRatio * 3.5).toFixed(2));
-      if (chromaB) chromaB.setAttribute("dx", (maxRatio * 3.5).toFixed(2));
-
       raf = requestAnimationFrame(tick);
     };
     tick();
@@ -92,8 +76,6 @@ export default function Nav({ onNavigate }) {
   const goTo = (index) => {
     if (index === activeIndexRef.current) return;
     const target = rectOf(index);
-
-    movingRef.current = true;
 
     setIndicator((prev) => {
       const left = Math.min(prev.left, target.left);
@@ -106,12 +88,6 @@ export default function Nav({ onNavigate }) {
       setIndicator(target);
       setTransition(SETTLE_EASE);
     }, STRETCH_MS);
-
-    // recién se considera "asentado" cuando termina también la
-    // transición de settle (450ms) — ahí se apaga la aberración
-    setTimeout(() => {
-      movingRef.current = false;
-    }, STRETCH_MS + 460);
 
     activeIndexRef.current = index;
     setActiveIndex(index);

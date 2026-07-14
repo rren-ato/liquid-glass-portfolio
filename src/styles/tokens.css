@@ -166,9 +166,6 @@ button {
   transform-origin: center;
   will-change: transform;
 }
-.lg-nav-label.lg-chroma-active {
-  filter: url(#lg-chroma-filter);
-}
 .lg-nav a:hover,
 .lg-nav a:focus-visible,
 .lg-nav a:active {
